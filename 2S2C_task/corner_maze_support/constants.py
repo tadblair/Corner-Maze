@@ -88,6 +88,7 @@ PRETRIAL_TRIGGER_POSITIONS = [(6, 2), (10, 6), (6, 10), (2, 6)]
 
 # Minimum steps in pretrial before trigger becomes active
 PRETRIAL_MIN_STEPS = 10
+PRETRIAL_START_MIN_STEPS = 1 # first trial only
 
 # State type constants (grid_configuration_sequence[i][0])
 STATE_BASE     = 0
