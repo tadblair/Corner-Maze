@@ -891,17 +891,8 @@ class CornerMazeEnv(MiniGridEnv):
         if self.pretrial_step_count < required_steps:
             return
 
-        current_config = self.grid_configuration_sequence[self.sequence_count]
-        
-        # Map trigger index to arm: 33→east(1), 34→south(2), 35→west(3), 36→north(0)
-        arm_idx = None
-        for idx, arm in ((33, 1), (34, 2), (35, 3), (36, 0)):
-            if current_config[idx] == 4:
-                arm_idx = arm
-                break
-        
         # Verify agent is at the dead-end trigger position for the active start arm
-        if arm_idx is not None and tuple(self.agent_pos) == PRETRIAL_TRIGGER_POSITIONS[arm_idx]:
+        if tuple(self.agent_pos) in PRETRIAL_TRIGGER_POSITIONS:
             self.sequence_count += 1
             self.update_grid_configuration(self.grid_configuration_sequence[self.sequence_count])
             self.session_phase = STATE_TRIAL
