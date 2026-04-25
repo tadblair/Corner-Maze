@@ -1422,26 +1422,36 @@ class CornerMazeEnv(MiniGridEnv):
             self.phase_step_count = 0
 
     def _handle_pretrial(self) -> None:
-        """Check pretrial position-based trigger after minimum steps."""
-        if self.session_phase != STATE_PRETRIAL:
-            return
-        self.pretrial_step_count += 1
-        if self.pretrial_step_count < PRETRIAL_MIN_STEPS:
-            return
-        current_config = self.grid_configuration_sequence[self.sequence_count]
-        # Map trigger index to arm: 33→east(1), 34→south(2), 35→west(3), 36→north(0)
-        arm_idx = None
-        for idx, arm in ((33, 1), (34, 2), (35, 3), (36, 0)):
-            if current_config[idx] == 4:
-                arm_idx = arm
-                break
+            """Check pretrial position-based trigger with dynamic step requirements."""
+            if self.session_phase != STATE_PRETRIAL:
+                return
+            
+            self.pretrial_step_count += 1
+            
+            # DYNAMIC TRIGGER WINDOW:
+            # If it's the first trial (trial_count == 0), trigger immediately (1 step).
+            # Otherwise, use the constant defined in constants.py (10 steps).
+            required_steps = 1 if self.trial_count == 0 else PRETRIAL_MIN_STEPS
+            
+            if self.pretrial_step_count < required_steps:
+                return
+
+            current_config = self.grid_configuration_sequence[self.sequence_count]
+            
+            # Map trigger index to arm: 33→east(1), 34→south(2), 35→west(3), 36→north(0)
+            arm_idx = None
+            for idx, arm in ((33, 1), (34, 2), (35, 3), (36, 0)):
+                if current_config[idx] == 4:
+                    arm_idx = arm
+                    break
+        
+        # Check for trigger at the back of the arm
         if arm_idx is not None and tuple(self.agent_pos) == PRETRIAL_TRIGGER_POSITIONS[arm_idx]:
             self.sequence_count += 1
             self.update_grid_configuration(self.grid_configuration_sequence[self.sequence_count])
             self.session_phase = STATE_TRIAL
             self.phase_step_count = 0
             self.pretrial_step_count = 0
-
     def _handle_exposure_b_phase_a(self) -> None:
         """Progressive barrier lowering state machine for Exposure B Phase A."""
         if self.session_phase != STATE_EXPB or self.expb_barrier_step is None:
