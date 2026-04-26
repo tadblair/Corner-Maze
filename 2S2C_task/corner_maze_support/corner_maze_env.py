@@ -1,3 +1,10 @@
+# TAD MODIFICATION: added PRETRIAL_START_MIN_STEPS to constants and changed _handle_pretrial to specify different min step requirement on trial 1
+#                    (this is useful for displaying yoked sessoin data)
+# TAD MODIFICATION: changed _handle_trigger so that entry into any of the PRETRIAL_TRIGGER_POSITIONS will initiate a trial 
+#                    (detector previously matched each trigger zone to its start arm but did not always do the matching correctly)
+# TAD MODIFICATION: commented out special handling in _apply_action that prohiited left turns after leaving a corner well 
+#                    (reason for this was unclear and it messes up yoked playback)
+
 from __future__ import annotations
 
 from typing import Any
@@ -780,11 +787,12 @@ class CornerMazeEnv(MiniGridEnv):
 
     def _apply_action(self, action: int) -> str:
         if action == Actions.left:
-            if self.agent_pos in CORNERS and self.last_pose in WELL_EXIT_POSES:
-                new_pos_dir = CORNER_LEFT_TURN_WELL_EXIT.get(self.agent_pos)
-                if new_pos_dir: self.agent_pos, self.agent_dir = new_pos_dir
-                return "forward"
-            else: self.agent_dir = (self.agent_dir - 1) % 4; return "turn"
+            #if self.agent_pos in CORNERS and self.last_pose in WELL_EXIT_POSES:
+            #    new_pos_dir = CORNER_LEFT_TURN_WELL_EXIT.get(self.agent_pos)
+            #    if new_pos_dir: self.agent_pos, self.agent_dir = new_pos_dir
+            #    return "forward"
+            #else: 
+            self.agent_dir = (self.agent_dir - 1) % 4; return "turn"
         elif action == Actions.right: self.agent_dir = (self.agent_dir + 1) % 4; return "turn"
         elif action == Actions.forward:
             if self.agent_pose in WELL_EXIT_POSES:
